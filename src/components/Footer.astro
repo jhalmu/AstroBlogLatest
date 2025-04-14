@@ -1,0 +1,36 @@
+---
+import SocialLinks from './SocialLinks.astro'
+
+const currentYear = new Date().getFullYear()
+---
+
+<footer class="relative mt-auto h-24">
+	<!-- Mountain background -->
+	<div
+		class="absolute inset-0 bg-cover bg-top bg-no-repeat"
+		style="background-image: url('/mountains-footer.svg')"
+	>
+	</div>
+
+	<!-- Footer content -->
+	<div class="relative z-10 flex h-full items-center justify-between px-4">
+		<div class="w-full text-center text-purple-100">
+			<SocialLinks />
+
+			<div class="mb-12 space-y-1 text-sm">
+				<p class="text-purple-100">
+					&copy; {currentYear} Juha Halmu. Kaikki pidätetään kuitenkin lopuksi.
+				</p>
+				<p class="text-purple-100">
+					Löysitkö virheen tai toimattomuuden? <br /><a
+						href="https://github.com/jhalmu/AstroBlogi/issues"
+						rel="noopener noreferrer"
+						target="_blank"
+						aria-label="Ilmoita toimimattomuudesta"
+						class="underline">Ilmoita siitä täällä.</a
+					>.
+				</p>
+			</div>
+		</div>
+	</div>
+</footer>

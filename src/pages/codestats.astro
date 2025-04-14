@@ -1,0 +1,297 @@
+---
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate')
+
+import Layout from '../layouts/Layout.astro'
+import { initializeChart } from '../components/Pie.ts'
+import { initializeBarChart } from '../components/Bar.ts'
+import { initializePolarChart } from '../components/Polar.ts'
+
+const [pieChartConfig, barChartConfig, polarChartConfig] = await Promise.all([
+	initializeChart(),
+	initializeBarChart(),
+	initializePolarChart()
+])
+
+declare global {
+	interface Window {
+		pieChartConfig: any
+		barChartConfig: any
+		polarChartConfig: any
+	}
+}
+export const prerender = true
+
+import '../styles/tail.css'
+---
+
+<Layout
+	title='Code Statistics'
+	author='Juha Halmu'
+	description='Programming stats from Code::Stats'
+	type='article'
+>
+	<main class='container m-auto' role='main' aria-labelledby='page-title'>
+		<!-- Loading and error messages container -->
+		<div class='status-container' aria-live='polite'>
+			<div id='loading-status' class='sr-only'>Loading charts...</div>
+			<div id='error-message' class='hidden p-4 text-center text-red-500'></div>
+		</div>
+
+		<div class='charts-stack' id='stats-content'>
+			<section class='chart-section bg-white/20' role='region' aria-labelledby='bar-chart-title'>
+				<h2 id='bar-chart-title' class='sr-only'>Programming Languages Usage Bar Chart</h2>
+				<div class='chart-container bar'>
+					<canvas
+						id='barChart'
+						role='img'
+						aria-label='Bar chart showing programming language usage statistics'
+						tabindex='0'></canvas>
+					<div id='bar-chart-description' class='sr-only'>
+						This chart shows the usage statistics of different programming languages over time.
+					</div>
+				</div>
+			</section>
+
+			<section class='chart-section bg-white/20' role='region' aria-labelledby='polar-chart-title'>
+				<h2 id='polar-chart-title' class='sr-only'>
+					Programming Languages Distribution Polar Chart
+				</h2>
+				<div class='chart-container polar'>
+					<canvas
+						id='polarChart'
+						role='img'
+						aria-label='Polar chart showing distribution of programming languages'
+						tabindex='0'></canvas>
+					<div id='polar-chart-description' class='sr-only'>
+						This chart displays the relative distribution of programming languages in a polar
+						layout.
+					</div>
+				</div>
+			</section>
+
+			<section class='chart-section bg-white/20' role='region' aria-labelledby='pie-chart-title'>
+				<h2 id='pie-chart-title' class='sr-only'>Programming Languages Breakdown Pie Chart</h2>
+				<div class='chart-container pie'>
+					<canvas
+						id='pieChart'
+						role='img'
+						aria-label='Pie chart showing breakdown of programming languages'
+						tabindex='0'></canvas>
+					<div id='pie-chart-description' class='sr-only'>
+						This chart shows the percentage breakdown of time spent in different programming
+						languages.
+					</div>
+				</div>
+			</section>
+		</div>
+	</main>
+
+	<footer
+		id='stats-footer'
+		class='stats-footer mt-12'
+		role='contentinfo'
+		aria-label='Additional Statistics Information'
+	>
+		<p>
+			Data provided by <a
+				href='https://codestats.net/'
+				target='_blank'
+				rel='noopener noreferrer'
+				aria-label='Code::Stats'>Code::Stats</a
+			>
+		</p>
+		<p>
+			Full profile stats <a
+				href='https://codestats.net/users/jhalmu'
+				target='_blank'
+				rel='noopener noreferrer'
+				aria-label='Code::Stats - jhalmu'>Code::Stats - jhalmu</a
+			>
+		</p>
+	</footer>
+
+	<style>
+		.container {
+			margin: 0 auto;
+			width: 40rem;
+			max-width: 40rem;
+			min-height: 8rem;
+			background: rgb(var(--color-purple-900));
+			opacity: 90%;
+			color: #ffffff;
+			border-radius: 2rem;
+		}
+
+		.container h1 {
+			text-align: center;
+			margin-bottom: 2rem;
+			color: #ffffff;
+			font-size: 2.5rem;
+		}
+		.charts-stack {
+			display: flex;
+			flex-direction: column;
+			gap: 3rem;
+			margin: 2rem auto;
+		}
+		.chart-section {
+			border-radius: 12px;
+			padding: 1.5rem;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+		.chart-container {
+			width: 100%;
+			position: relative;
+			margin: 0 auto;
+		}
+		.chart-container.pie {
+			max-width: 100%;
+			background: rgb(var(--color-purple-800));
+			padding: 1rem;
+		}
+		.chart-container.bar {
+			max-width: 100%;
+			background: rgb(var(--color-purple-800));
+			padding: 1rem;
+		}
+		.chart-container.polar {
+			max-width: 100%;
+			background: rgb(var(--color-purple-800));
+			padding: 1rem;
+		}
+
+		.stats-footer {
+			text-align: center;
+			padding: 2rem 0;
+			color: #ffffff;
+		}
+
+		.stats-footer a {
+			color: #8cbde8;
+			text-decoration: none;
+			font-weight: 500;
+			transition: color 0.2s ease;
+		}
+
+		.stats-footer a:hover {
+			color: #ffffff;
+			text-decoration: underline;
+		}
+
+		.skip-link:focus {
+			clip-path: none;
+			width: auto;
+			height: auto;
+			border: 2px solid #4a5568;
+		}
+
+		.hidden {
+			display: none;
+		}
+		.status-container {
+			position: fixed;
+			top: 1rem;
+			right: 1rem;
+			z-index: 50;
+		}
+		@media (max-width: 668px) {
+			.container {
+				padding: 0;
+				margin: 0;
+				width: 100%;
+
+				border-radius: 2rem;
+				background: rgb(var(--color-purple-900));
+			}
+			.chart-container.pie,
+			.chart-container.bar,
+			.chart-container.polar {
+				height: 350px;
+				background: rgb(var(--color-purple-800));
+				padding: 1rem;
+				border-radius: 1rem;
+			}
+			h1 {
+				font-size: 1rem;
+			}
+
+			.chart-container.bar {
+				display: none;
+			}
+		}
+	</style>
+
+	<script>
+		import { initializeClientChart } from '../components/ChartInitializer'
+
+		function handleKeyboardNavigation(event: KeyboardEvent) {
+			const charts = document.querySelectorAll('canvas')
+			if (event.key === 'Tab') {
+				charts.forEach((chart) => {
+					chart.setAttribute('tabindex', '0')
+				})
+			}
+		}
+
+		async function initializeCharts() {
+			const loadingStatus = document.getElementById('loading-status')
+			const errorMessage = document.getElementById('error-message')
+
+			try {
+				loadingStatus?.classList.remove('sr-only')
+				errorMessage?.classList.add('hidden')
+
+				await Promise.all([
+					initializeClientChart(window.pieChartConfig, 'pieChart'),
+					initializeClientChart(window.barChartConfig, 'barChart'),
+					initializeClientChart(window.polarChartConfig, 'polarChart')
+				])
+
+				loadingStatus?.classList.add('sr-only')
+
+				// Announce completion to screen readers
+				const announcement = document.createElement('div')
+				announcement.setAttribute('role', 'status')
+				announcement.setAttribute('aria-live', 'polite')
+				announcement.textContent = 'Charts have been loaded successfully'
+				document.body.appendChild(announcement)
+				setTimeout(() => announcement.remove(), 1000)
+			} catch (error) {
+				console.error('Error initializing charts:', error)
+				if (errorMessage) {
+					errorMessage.textContent = 'Error loading charts. Please try again later.'
+					errorMessage.classList.remove('hidden')
+				}
+				loadingStatus?.classList.add('sr-only')
+			}
+		}
+
+		// Event Listeners
+		document.addEventListener('keydown', handleKeyboardNavigation)
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initializeCharts)
+		} else {
+			initializeCharts()
+		}
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'visible') {
+				initializeCharts()
+			}
+		})
+
+		// Cleanup
+		window.addEventListener('unload', () => {
+			document.removeEventListener('keydown', handleKeyboardNavigation)
+		})
+	</script>
+
+	<script is:inline define:vars={{ pieChartConfig, barChartConfig, polarChartConfig }}>
+		// Make configs available globally
+		window.pieChartConfig = pieChartConfig
+		window.barChartConfig = barChartConfig
+		window.polarChartConfig = polarChartConfig
+		console.log('Chart configs loaded:', { pieChartConfig, barChartConfig, polarChartConfig })
+	</script>
+</Layout>

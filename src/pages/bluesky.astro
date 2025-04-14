@@ -1,0 +1,20 @@
+---
+// pages/index.astro
+import Layout from '../layouts/Layout.astro'
+//import BlueskyFeed from '../components/BlueskyFeed.astro'
+
+// Nämä tunnukset pitäisi pitää turvassa, esimerkiksi ympäristömuuttujissa
+//const BLUESKY_IDENTIFIER = import.meta.env.BLUESKY_IDENTIFIER || 'juhahalmu.net'
+//const BLUESKY_PASSWORD = import.meta.env.BLUESKY_APP_PASSWORD || ''
+---
+
+<Layout title='Sivustoni Bluesky Feed'>
+	<main>
+		<h1>Tervetuloa sivustolleni</h1>
+
+		<section>
+			<h2>Bluesky Päivitykset</h2>
+			<!-- <BlueskyFeed handle={BLUESKY_IDENTIFIER} limit={5} appPassword={BLUESKY_PASSWORD} /> -->
+		</section>
+	</main>
+</Layout>

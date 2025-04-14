@@ -1,0 +1,74 @@
+---
+import Avatar from './Avatar.astro'
+---
+
+<section
+	class='relative mt-8 w-80 overflow-hidden rounded-3xl py-20 sm:w-full md:w-full md:py-32 lg:w-full'
+>
+	<div
+		class='absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_-20%_-20%,#1e40af,#1e40af_20%,#581c87_40%,#6b21a8_60%,#7e22ce_80%,#1e40af_100%)] opacity-80'
+	>
+	</div>
+	<div
+		class='absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_-20%_-20%,rgba(255,255,255,0.2),transparent_70%)]'
+	>
+	</div>
+
+	<!-- Large Avatar Background -->
+	<div class='absolute -top-10 -left-[22%] max-w-80 sm:w-full md:w-full lg:w-full'>
+		<Avatar size='2xl' opacity={0.4} tint='rgba(255, 255, 255, 0.2)' />
+	</div>
+
+	<div
+		class='relative z-10 mr-2 grid grid-cols-1 content-baseline justify-items-center gap-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2'
+	>
+		<div id='left-side' class='py-10'></div>
+		<div
+			class='mx-auto max-w-4xl pl-10 text-left sm:text-center md:pl-0 md:text-center lg:pl-0 lg:text-center'
+		>
+			<h1 class='text-4xl font-bold text-white sm:text-5xl md:text-6xl lg:text-7xl'>
+				Tervetuloa sivuilleni!
+			</h1>
+			<p class='text-lg font-semibold'>
+				Tämä on blogini, jossa kirjoitan teknologiasta, sukututkimuksesta. Tai mitä mieleen tulee.
+			</p>
+			<a href='/blog' role='button' class='button'> Kaikki postaukset </a>
+		</div>
+	</div>
+</section>
+<style>
+	a.button {
+		outline: 2px solid skyblue;
+		outline-offset: 2px;
+		background-color: RGB(126, 34, 206);
+		color: RGB(245, 243, 255);
+		text-decoration: none;
+		opacity: 0.8;
+		border-radius: 1rem;
+		display: inline-block;
+		font-size: 1.1rem;
+		font-weight: 600;
+		padding: 1rem 1.25rem;
+		text-decoration: none;
+		transition:
+			background-color 0.3s ease,
+			color 0.3s ease;
+	}
+	a.button:hover {
+		outline: 2px solid skyblue;
+		outline-offset: 4px;
+		background-color: RGB(126, 34, 206);
+		color: RGB(245, 243, 255);
+		text-decoration: none;
+	}
+	a.button:focus {
+		outline: 3px solid RGB(126, 34, 206);
+		outline-offset: -8px;
+		text-decoration: none;
+	}
+	a.button:active {
+		background-color: skyblue;
+		color: RGB(126, 34, 206);
+		text-decoration: none;
+	}
+</style>

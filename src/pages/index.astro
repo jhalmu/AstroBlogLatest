@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/Hero.astro'
+import BlogCard from '../components/BlogCard.astro'
+import { getCollection } from 'astro:content'
+import { sortBlogPosts } from '../utils/content'
+import { getContentPreview } from '../utils/utils.js'
+
+// Get and validate blog posts
+const allPosts = await getCollection('blog')
+const validPosts = allPosts.filter((post) => !post.data.draft)
+const sortedPosts = sortBlogPosts(validPosts)
+const posts = sortedPosts.slice(0, 2)
+
+const title = "Juha Halmu's Blog"
+const description = 'Web-kehitystä, sukututkimusta ja muuta mielenkiintoista'
+---
+
+<Layout title={title} description={description} type="article">
+	<main class="text-center">
+		<Hero />
+
+		<section class="bg-transparent-400 mt-2 rounded-2xl py-10">
+			<div class="container mx-auto px-2">
+				<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-2">
+					{
+						posts.map((post) => {
+							const postDescription = post.data.description || getContentPreview(post.body)
+							return (
+								<BlogCard
+									title={post.data.title}
+									pubDate={post.data.pubDate}
+									slug={post.id}
+									lang={post.data.lang}
+									description={postDescription}
+									tags={post.data.tags}
+								/>
+							)
+						})
+					}
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
+<!-- 640px -->
+<style>
+	@media only screen and (min-width: 390px) and (max-width: 767px) and (-webkit-device-pixel-ratio: 2) {
+		article {
+			padding: 0 0.5rem;
+			margin: 0 auto;
+		}
+	}
+</style>

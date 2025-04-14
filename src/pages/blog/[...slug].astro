@@ -1,0 +1,96 @@
+---
+import Prose from '../../components/Prose.astro'
+import type { CollectionEntry } from 'astro:content'
+import { getCollection } from 'astro:content'
+import Layout from '../../layouts/Layout.astro'
+import { render } from 'astro:content'
+import { getContentPreview } from '../../utils/utils.js'
+
+// Tell Astro to prerender this page as static HTML
+export const prerender = true
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog')
+	if (posts.length === 0) {
+		return []
+	}
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: post
+	}))
+}
+type Props = CollectionEntry<'blog'> & {
+	data: {
+		author: string
+		tags: string[]
+	}
+	author?: string
+	tags?: string[]
+	lang?: string
+}
+
+const post = Astro.props
+const { Content } = await render(post)
+
+// Log the content to check if post.body is populated
+//console.log('Post body:', post.body)
+
+// Get the description text
+const description = post.data.description || (post.body ? getContentPreview(post.body) : '')
+---
+
+<Layout
+	title={post.data.title}
+	description={description}
+	type="article"
+	publishDate={post.data.pubDate?.toISOString()}
+	author={post.data.author || Astro.props.author}
+	tags={post.data.tags || Astro.props.tags}
+	lang={post.data.lang || Astro.props.lang}
+>
+	<main>
+		<div>
+			<article class="content justify-center w-full px-2">
+				<Prose>
+					<Content />
+				</Prose>
+			</article>
+			<div>
+				<a href="javascript:history.back(-1)" class="text-blue-500 hover:underline">
+					Edellinen sivu
+			</div>
+		</div>
+	</main>
+</Layout>
+<style>
+	@media (max-width: 768px) {
+		.blog-content {
+			padding: 0 1rem;
+		}
+	}
+	@media (min-width: 769px) {
+		.blog-content {
+			padding: 0 2rem;
+		}
+	}
+	@media (min-width: 1024px) {
+		.blog-content {
+			padding: 0 3rem;
+		}
+	}
+	@media (min-width: 1280px) {
+		.blog-content {
+			padding: 0 4rem;
+		}
+	}
+	@media (min-width: 1536px) {
+		.blog-content {
+			padding: 0 5rem;
+		}
+	}
+	@media (min-width: 1920px) {
+		.blog-content {
+			padding: 0 6rem;
+		}
+	}
+</style>

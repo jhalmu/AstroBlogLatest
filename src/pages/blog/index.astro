@@ -1,0 +1,105 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import BlogCard from '../../components/BlogCard.astro'
+import { getCollection, type CollectionEntry } from 'astro:content'
+import { sortBlogPosts } from '../../utils/content'
+import { getContentPreview } from '../../utils/utils.js'
+
+// Pagination settings
+const POSTS_PER_PAGE = 6
+const currentPage = 1
+const page = 1
+
+// Get and validate blog posts
+const allPosts = await getCollection('blog')
+const validPosts = allPosts.filter((post) => !post.data.draft)
+const sortedPosts = sortBlogPosts(validPosts)
+
+// Calculate pagination
+const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE)
+const start = (currentPage - 1) * POSTS_PER_PAGE
+const end = start + POSTS_PER_PAGE
+const paginatedPosts = sortedPosts.slice(start, end)
+
+interface Props {
+	author: string
+	page: number
+	posts: CollectionEntry<'blog'>[]
+	totalPages: number
+	prevPageTitle?: string
+	nextPageTitle?: string
+}
+
+// Get next page title for navigation
+const nextPageTitle = sortedPosts[POSTS_PER_PAGE]?.data.title
+---
+
+<Layout title={`Blogi`}>
+	{/* Blog Header */}
+	<div class='container mx-auto px-4' style='margin-top: calc(3.5rem)'>
+		{/* Blog Posts Grid */}
+		<div class='sr-only' role='status'>Page {page} of {totalPages}</div>
+
+		{/* Blog Posts Grid */}
+		<div class='mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-2'>
+			{
+				paginatedPosts.map((post) => {
+					const postDescription = post.data.description || getContentPreview(post.body)
+					return (
+						<BlogCard
+							title={post.data.title}
+							pubDate={post.data.pubDate}
+							slug={post.id}
+							lang={post.data.lang}
+							description={postDescription}
+							tags={post.data.tags}
+						/>
+					)
+				})
+			}
+		</div>
+
+		{/* Pagination */}
+		{
+			totalPages > 1 && (
+				<nav class='mt-12 mb-24 flex justify-center gap-4' aria-label='Blog pagination'>
+					<a
+						style='text-decoration:none'
+						href='/blog/2'
+						aria-label={`Go to next page${nextPageTitle ? ` (${nextPageTitle})` : ''}`}
+					>
+						<span>Edelliset tekstit</span>
+					</a>
+				</nav>
+			)
+		}
+	</div>
+</Layout>
+<style>
+	nav {
+		margin-top: 2rem;
+		margin-bottom: 6rem;
+		color: #2d3748;
+	}
+	ul {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+	}
+	span {
+		list-style: none;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.375rem;
+		padding: 0.5rem 1rem;
+		background-color: rgb(107, 33, 168);
+		transition: background-color 0.3s ease;
+	}
+	a.span {
+		text-decoration: none;
+		color: #fff;
+		font-size: 1rem;
+	}
+	a.span:hover {
+		background-color: rgb(126, 34, 206);
+	}
+</style>

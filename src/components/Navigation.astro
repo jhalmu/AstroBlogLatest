@@ -1,0 +1,116 @@
+---
+import SocialLinks from './SocialLinks.astro'
+import ProfileImage from './ProfileImage.astro'
+import '../styles/tail.css'
+
+const navItems = [
+	{ href: '/', text: 'Alku' },
+	{ href: '/blog', text: 'Blogi' },
+	{ href: '/projects', text: 'Projektit' },
+	//{ href: '/bluesky', text: 'Bluesky' },
+	{ href: '/codestats', text: 'CodeStats' }
+]
+
+const currentPath = Astro.url.pathname
+---
+
+<nav class='relative bg-gradient-to-b from-purple-900' aria-label='Main navigation'>
+	<!-- Inverted mountain background -->
+	<div
+		class='absolute inset-0 bg-cover bg-bottom bg-no-repeat'
+		style="background-image: url('/mountains-nav.svg')"
+		aria-hidden='true'
+	>
+	</div>
+
+	<!-- Navigation content -->
+	<div class='relative z-10 mx-auto w-full max-w-2xl'>
+		<!-- Top navigation links -->
+		<div
+			class='flex justify-start p-8 md:justify-end lg:justify-end'
+			role='complementary'
+			aria-label='Social links'
+		>
+			<SocialLinks />
+		</div>
+
+		<!-- Main navigation -->
+		<div  class='m-auto grid grid-cols-1'>
+			<div id='brand' class='items-center justify-between px-4'>
+				<div class='flex items-baseline space-x-4'>
+					<a href='/' class='flex items-center'>
+						<ProfileImage alt="Blog author's profile picture" />
+					</a>
+					<h1
+						class="text-shadow font-['Abril_Fatface'] text-6xl tracking-normal whitespace-nowrap text-purple-100 opacity-80 transition-opacity duration-300 hover:opacity-90"
+						id='site-title'
+					>
+						<span class='tracking-normal'>Juha</span>{' '}
+						<span class='tracking-normal'>Halmu</span>
+					</h1>
+				</div>
+			</div>
+			<div
+				id='nav_menu'
+				class='flex flex-row space-x-4 px-4 pl-22'
+				role='menubar'
+				aria-label='Main menu'
+			>
+				{
+					navItems.map((item) => {
+						const isActive =
+							currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href))
+						return (
+							<a
+								data-astro-prefetch
+								href={item.href}
+								class={`text-purple-50 opacity-80 transition-opacity duration-300 hover:opacity-100 md:text-lg ${
+									isActive ? 'font-bold underline' : ''
+								}`}
+								role='menuitem'
+								aria-current={isActive ? 'page' : undefined}
+							>
+								{item.text}
+							</a>
+						)
+					})
+				}
+			</div>
+		</div>
+	</div>
+</nav>
+
+<script>
+	// Add keyboard navigation
+	const menuItems = document.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]')
+	const menuItemsArray = Array.from(menuItems)
+
+	menuItemsArray.forEach((item, index) => {
+		item.addEventListener('keydown', (e) => {
+			let targetItem: HTMLAnchorElement | undefined
+
+			switch (e.key) {
+				case 'ArrowRight':
+				case 'ArrowDown':
+					e.preventDefault()
+					targetItem = menuItemsArray[index + 1] || menuItemsArray[0]
+					break
+				case 'ArrowLeft':
+				case 'ArrowUp':
+					e.preventDefault()
+					targetItem = menuItemsArray[index - 1] || menuItemsArray[menuItemsArray.length - 1]
+					break
+				case 'Home':
+					e.preventDefault()
+					targetItem = menuItemsArray[0]
+					break
+				case 'End':
+					e.preventDefault()
+					targetItem = menuItemsArray[menuItemsArray.length - 1]
+					break
+			}
+
+			targetItem?.focus()
+		})
+	})
+</script>

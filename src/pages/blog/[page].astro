@@ -1,0 +1,181 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getCollection, type CollectionEntry } from 'astro:content'
+import BlogCard from '../../components/BlogCard.astro'
+import { sortBlogPosts } from '../../utils/content'
+import { getContentPreview } from '../../utils/utils.js'
+
+export const prerender = true
+
+export async function getStaticPaths() {
+	const POSTS_PER_PAGE = 8
+
+	// Get and validate blog posts
+	const allPosts = await getCollection('blog')
+	const validPosts = allPosts
+	const sortedPosts = sortBlogPosts(validPosts)
+
+	const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE)
+
+	// Generate paths for pages 2 onwards
+	return Array.from({ length: totalPages - 1 }, (_, i) => {
+		const page = i + 2 // Start from page 2
+		const start = (page - 1) * POSTS_PER_PAGE
+		const end = start + POSTS_PER_PAGE
+		const pagePosts = sortedPosts.slice(start, end)
+
+		// Get previous and next post titles for navigation
+		const prevPageStart = (page - 2) * POSTS_PER_PAGE
+		const nextPageStart = page * POSTS_PER_PAGE
+		const prevPageTitle = sortedPosts[prevPageStart]?.data.title
+		const nextPageTitle = page < totalPages ? sortedPosts[nextPageStart]?.data.title : null
+
+		return {
+			params: { page: String(page) },
+			props: {
+				posts: pagePosts,
+				page,
+				totalPages,
+				prevPageTitle,
+				nextPageTitle,
+				hasNextPage: page < totalPages,
+				hasPrevPage: true
+			}
+		}
+	})
+}
+
+interface Props {
+	page: number
+	posts: CollectionEntry<'blog'>[]
+	totalPages: number
+	prevPageTitle?: string
+	nextPageTitle?: string
+	hasNextPage: boolean
+	hasPrevPage: boolean
+	author: string
+	tags?: string[]
+}
+
+const {
+	page,
+	posts = [],
+	totalPages = 0,
+	prevPageTitle,
+	nextPageTitle,
+	hasNextPage = false,
+	hasPrevPage = false
+} = Astro.props as Props
+
+// Redirect to the main blog page if no posts are available
+if (!posts.length) {
+	return Astro.redirect('/blog')
+}
+---
+
+<Layout title={`Blogi`} lang='fi'>
+	{/* Hero Image */}
+	<div class='container mx-auto px-4' style='margin-top: calc(3.5rem)'>
+		{/* Blog Posts Grid */}
+		<div class='sr-only' role='status'>Page {page} of {totalPages}</div>
+
+		<div class='mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-2'>
+			{
+				posts.map((post) => {
+					const postDescription = post.data.description || getContentPreview(post.body)
+					return (
+						<BlogCard
+							title={post.data.title}
+							pubDate={post.data.pubDate}
+							slug={post.id}
+							lang={post.data.lang}
+							description={postDescription}
+							tags={post.data.tags}
+						/>
+					)
+				})
+			}
+		</div>
+	</div>
+	<!-- Pagination -->
+	{
+		totalPages > 1 && (
+			<nav class='mt-12 mb-24' aria-label='Blog pagination' role='navigation'>
+				<div class='flex justify-center gap-4'>
+					<div class='sr-only' id='pagination-heading'>
+						Blog pages navigation
+					</div>
+					<div class='flex gap-4' role='list' aria-labelledby='pagination-heading'>
+						{hasPrevPage && (
+							<div>
+								<a
+									style='text-decoration:none'
+									href={page === 2 ? '/blog' : `/blog/${page - 1}`}
+		
+									aria-label={`Go to previous page${prevPageTitle ? ` (${prevPageTitle})` : ''}`}
+									rel='prev'
+								>
+									<span>Uudemmat teksit</span>
+								</a>
+							</div>
+						)}
+
+						<div>
+							<a
+								style='text-decoration:none'
+								href='/blog'
+				
+								aria-label='Return to first page of blog posts'
+								role='link'
+							>
+								<span>Takaisin blogiin</span>
+							</a>
+						</div>
+
+						{hasNextPage && (
+							<div>
+								<a
+									style='text-decoration:none'
+									href={`/blog/${page + 1}`}
+					
+									aria-label={`Go to next page${nextPageTitle ? ` (${nextPageTitle})` : ''}`}
+									rel='next'
+								>
+									<span>Edelliset tekstit </span>
+								</a>
+							</div>
+						)}
+					<div>
+				</div>
+			</nav>
+		)
+	}
+</Layout>
+<style>
+	nav {
+		margin-top: 2rem;
+		margin-bottom: 6rem;
+		color: #2d3748;
+	}
+	ul {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+	}
+	span {
+		list-style: none;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.375rem;
+		padding: 0.5rem 1rem;
+		background-color: rgb(107, 33, 168);
+		transition: background-color 0.3s ease;
+	}
+	a.span {
+		text-decoration: none;
+		color: #fff;
+		font-size: 1rem;
+	}
+	a.span:hover {
+		background-color: rgb(126, 34, 206);
+	}
+</style>

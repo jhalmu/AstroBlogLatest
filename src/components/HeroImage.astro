@@ -1,0 +1,101 @@
+---
+interface Props {
+	lang?: string
+	height?: string
+	priority?: boolean
+	title: string
+	excerpt?: string
+	lastUpdated?: string
+	description?: string
+	author?: string
+	tags?: string[]
+}
+
+const { title, lastUpdated, tags = [], author, lang } = Astro.props
+
+// Format date for display
+function formatDate(dateStr: string): string {
+	try {
+		const date = new Date(dateStr)
+		const options: Intl.DateTimeFormatOptions = {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric'
+		}
+		return date.toLocaleDateString(lang === 'fi' ? 'fi-FI' : 'en-US', options)
+	} catch (error) {
+		console.error(`Error formatting date for post "${title}":`, error)
+		return 'Date unavailable'
+	}
+}
+const formattedDate = lastUpdated ? formatDate(lastUpdated) : ''
+---
+
+<div class="mx-auto px-4">
+	<section aria-labelledby="hero-title">
+		{/* Content overlay */}
+		<div class="mx-auto max-w-3xl text-center" style="margin-top: calc(3.5rem)">
+			<div class="mx-auto max-w-3xl text-center">
+				{/* Title */}
+				<h1
+					id="hero-title"
+					class="font-montserrat mb-3 text-3xl leading-tight font-bold text-white md:text-4xl lg:text-5xl"
+				>
+					{title}
+				</h1>
+
+				{/* Author */}
+				{
+					author && (
+						<div class="mb-4 flex items-center justify-center">
+							<span class="font-montserrat flex items-center gap-2 text-lg text-white/90">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 20 20"
+									fill="currentColor"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+										clip-rule="evenodd"
+									/>
+								</svg>
+								{author}
+							</span>
+						</div>
+					)
+				}
+				{/* Tags */}
+				{
+					tags && tags.length > 0 && (
+						<div
+							class="mb-3 flex flex-wrap justify-center gap-2"
+							role="list"
+							aria-label="Post tags"
+						>
+							{tags.map((tag) => (
+								<span
+									class="rounded-full bg-white/20 px-3 py-1 text-sm text-white backdrop-blur-sm"
+									role="listitem"
+								>
+									{tag}
+								</span>
+							))}
+						</div>
+					)
+				}
+				{/* Last Updated */}
+				{
+					formattedDate && (
+						<time datetime={lastUpdated} class="block text-sm text-white/80">
+							{lang === 'fi'
+								? `Viimeksi päivitetty: ${formattedDate}`
+								: `Last updated: ${formattedDate}`}
+						</time>
+					)
+				}
+			</div>
+		</div>
+	</section>
+</div>
