@@ -2,7 +2,7 @@
 interface ImportMetaEnv {
 	readonly GITHUB_TOKEN: string
 	readonly API_TOKEN: string
-	readonly XAPI_TOKEN: string
+	readonly API_KEY: string
 }
 
 interface ImportMeta {
